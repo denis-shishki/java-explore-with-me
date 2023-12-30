@@ -8,8 +8,8 @@ services:
       - "9090:9090"
     depends_on:
       - stats-db
-    entrypoint:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/statistics
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statistics
       - SPRING_DATASOURCE_USERNAME=statistics
       - SPRING_DATASOURCE_PASSWORD=statistics
 
@@ -17,7 +17,7 @@ services:
     image: postgres:14-alpine
     container_name: stats-db
     ports:
-      - "6541:5432"
+      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=statistics
       - POSTGRES_USER=statistics

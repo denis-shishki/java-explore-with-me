@@ -1,7 +1,10 @@
 package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -16,7 +19,7 @@ public class RequestStatsDto {
     private Long id;
     @NotEmpty
     private String app;
-    @NotNull // возможно нужно исправить на @URL
+    @NotNull
     private String uri;
     @NotEmpty
     private String ip;

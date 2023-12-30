@@ -7,16 +7,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Service
-public class Client extends BaseClient{
+public class Client extends BaseClient {
 
     public Client(@Value("${explire-with-me-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super( builder
+        super(builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                 .build()
         );
     }
-
 
 
 }

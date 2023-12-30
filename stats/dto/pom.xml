@@ -10,7 +10,7 @@
     <artifactId>explore-with-me-ststs-dto</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>stats-dto</name>
-<!--    <packaging>jar</packaging>-->
+    <!--    <packaging>jar</packaging>-->
 
     <dependencies>
         <dependency>
@@ -29,7 +29,6 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
     </dependencies>
-
 
 
 </project>
