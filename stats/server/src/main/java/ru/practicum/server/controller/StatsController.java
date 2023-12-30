@@ -30,7 +30,7 @@ public class StatsController {
     @GetMapping("/stats")
     public ResponseEntity<List<ResponseStatsDto>> getStat(@RequestParam("start") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                                           @RequestParam("end") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                                          @RequestParam("uris") ArrayList<String> uris,
+                                                          @RequestParam(name = "uris", required = false)  ArrayList<String> uris,
                                                           @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
 
         return new ResponseEntity<>(statsService.getStats(start, end, uris, unique), HttpStatus.OK);

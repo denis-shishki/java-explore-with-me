@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
 
     <name>stats</name>
+
     <modules>
         <module>server</module>
         <module>dto</module>
