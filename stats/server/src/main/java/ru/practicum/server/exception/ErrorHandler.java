@@ -16,4 +16,10 @@ public class ErrorHandler {
         log.warn("Validation exception: ", e);
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse throwableException(final Throwable e) {
+        return new ErrorResponse(e.getMessage());
+    }
 }
