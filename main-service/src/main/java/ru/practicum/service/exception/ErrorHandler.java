@@ -14,9 +14,10 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
+    //todo нормально назвать методы
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(final MethodArgumentNotValidException e) {
+    public ErrorResponse validationException(final MethodArgumentNotValidException e) {
         log.warn("Validation exception: ", e);
         return new ErrorResponse(HttpStatus.BAD_REQUEST.toString(),
                 "Incorrectly made request.",
@@ -26,7 +27,7 @@ public class ErrorHandler {
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleValidationException(final DataIntegrityViolationException e) {
+    public ErrorResponse validationException(final DataIntegrityViolationException e) {
         log.warn("Validation exception: ", e);
         return new ErrorResponse(HttpStatus.CONFLICT.toString(),
                 "Integrity constraint has been violated.",
@@ -39,6 +40,15 @@ public class ErrorHandler {
     public ErrorResponse throwableException(final NotFoundException e) {
         return new ErrorResponse(HttpStatus.NOT_FOUND.toString(),
                 "The required object was not found.",
+                e.getMessage(),
+                LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse validationPaginatorException(final ValidationException e) {
+        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(),
+                "Incorrectly made request.",
                 e.getMessage(),
                 LocalDateTime.now());
     }

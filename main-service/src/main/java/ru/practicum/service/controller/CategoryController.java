@@ -8,6 +8,7 @@ import ru.practicum.service.service.CategoryService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -35,5 +36,17 @@ public class CategoryController {
         return categoryService.patchCategory(catId, categoryDto);
     }
 
+    @GetMapping("/categories")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") Integer from,
+                                           @RequestParam(defaultValue = "10") Integer size){
+        return categoryService.getCategories(from, size);
+    }
+
+    @GetMapping("/categories/{catId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryDto getCategoryById(@PathVariable Long catId) {
+        return categoryService.getCategoryById(catId);
+    }
 }
 

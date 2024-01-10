@@ -2,15 +2,20 @@ package ru.practicum.service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.service.exception.NotFoundException;
 import ru.practicum.service.model.Category;
 import ru.practicum.service.model.dto.CategoryDto;
 import ru.practicum.service.model.mapper.CategoryMapper;
+import ru.practicum.service.paginator.Paginator;
 import ru.practicum.service.repository.CategoryRepository;
 import ru.practicum.service.service.CategoryService;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category categoryUpdate = CategoryMapper.toCategory(categoryDto);
         Optional<Category> categoryOldOpt = categoryRepository.findById(id);
 
-        if(categoryOldOpt.isEmpty()) {
+        if (categoryOldOpt.isEmpty()) {
             throw new NotFoundException("Category with id=" + id + "was not found");
         }
 
@@ -54,4 +59,22 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toCategoryDto(categoryRepository.save(categoryUpdate));
     }
 
+    @Override
+    public List<CategoryDto> getCategories(int from, int size) {
+        Pageable pageable = Paginator.getPageable(from, size);
+        Page<Category> categories = categoryRepository.findAll(pageable);
+
+        return categories.stream().map(CategoryMapper::toCategoryDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryDto getCategoryById(long catId) {
+        Optional<Category> category = categoryRepository.findById(catId);
+
+        if (category.isEmpty()) {
+            throw new NotFoundException("Category with id=" + catId + " was not found");
+        }
+
+        return CategoryMapper.toCategoryDto(category.get());
+    }
 }
