@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>ru.practicum.service</groupId>
-    <artifactId>explore-with-me-service</artifactId>
+    <artifactId>explore-with-me-main-service</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -63,6 +63,12 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>ru.practicum</groupId>
+            <artifactId>explore-with-me-stats-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
