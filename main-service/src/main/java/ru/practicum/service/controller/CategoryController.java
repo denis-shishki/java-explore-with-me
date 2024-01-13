@@ -12,11 +12,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-//@RequestMapping("/admin")
 public class CategoryController {
     private final CategoryService categoryService;
-
-    //todo нужно еще прикинуть как разделять контроллеры и как раскидывать адреса
 
     @PostMapping("/admin/categories")
     @ResponseStatus(HttpStatus.CREATED)

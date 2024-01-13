@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -17,9 +16,9 @@ public class ErrorHandler {
     //todo нормально назвать методы
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validationException(final MethodArgumentNotValidException e) {
+    public ApiError validationException(final MethodArgumentNotValidException e) {
         log.warn("Validation exception: ", e);
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.toString(),
+        return new ApiError(HttpStatus.BAD_REQUEST.toString(),
                 "Incorrectly made request.",
                 e.getMessage(),
                 LocalDateTime.now());
@@ -27,9 +26,9 @@ public class ErrorHandler {
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse validationException(final DataIntegrityViolationException e) {
+    public ApiError validationException(final DataIntegrityViolationException e) {
         log.warn("Validation exception: ", e);
-        return new ErrorResponse(HttpStatus.CONFLICT.toString(),
+        return new ApiError(HttpStatus.CONFLICT.toString(),
                 "Integrity constraint has been violated.",
                 e.getMessage(),
                 LocalDateTime.now());
@@ -37,8 +36,8 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse throwableException(final NotFoundException e) {
-        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(),
+    public ApiError throwableException(final NotFoundException e) {
+        return new ApiError(HttpStatus.NOT_FOUND.toString(),
                 "The required object was not found.",
                 e.getMessage(),
                 LocalDateTime.now());
@@ -46,8 +45,8 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validationPaginatorException(final ValidationException e) {
-        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(),
+    public ApiError validationPaginatorException(final ValidationException e) {
+        return new ApiError(HttpStatus.NOT_FOUND.toString(),
                 "Incorrectly made request.",
                 e.getMessage(),
                 LocalDateTime.now());
