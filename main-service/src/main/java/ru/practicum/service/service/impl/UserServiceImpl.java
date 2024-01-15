@@ -14,6 +14,7 @@ import ru.practicum.service.repository.UserRepository;
 import ru.practicum.service.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,6 +50,17 @@ public class UserServiceImpl implements UserService {
         }
 
         return users.stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public User checkExistUser(long userId) {
+        Optional<User> user = userRepository.findById(userId);
+
+        if (user.isEmpty()) {
+            throw new NotFoundException("User with id= " + userId + " was not found");
+        } else {
+            return user.get();
+        }
     }
 
 }

@@ -77,4 +77,15 @@ public class CategoryServiceImpl implements CategoryService {
 
         return CategoryMapper.toCategoryDto(category.get());
     }
+
+    @Override
+    public Category checkExistCategory(long categoryId) {
+        Optional<Category> category = categoryRepository.findById(categoryId);
+
+        if (category.isEmpty()) {
+            throw new NotFoundException("Category with id=" + categoryId + " was not found");
+        } else {
+            return category.get();
+        }
+    }
 }

@@ -11,4 +11,5 @@ public interface CategoryService {
     CategoryDto patchCategory(long id, CategoryDto categoryDto);
     List<CategoryDto> getCategories(int from, int size);
     CategoryDto getCategoryById(long catId);
+    Category checkExistCategory(long categoryId);
 }
