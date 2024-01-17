@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.service.model.ParamsSearchForAdmin;
+import ru.practicum.service.model.SearchParamsForEvents;
 import ru.practicum.service.model.dto.*;
 import ru.practicum.service.service.EventsService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -67,4 +70,15 @@ public class EventsController {
         return eventsService.updateStatusRequest(userId, eventId, inputUpdate);
     }
 
+    @GetMapping("/events")
+    public List<EventShortDto> getAllEvents(@Valid SearchParamsForEvents searchParamsForEvents,
+                                            HttpServletRequest request) {
+        return eventsService.getAllEventFromPublic(searchParamsForEvents, request);
+    }
+
+    @GetMapping("/events/{eventId}")
+    public EventFullDto getEventById(@PathVariable(value = "eventId") Long eventId,
+                                     HttpServletRequest request) {
+        return eventsService.getEventById(eventId, request);
+    }
 }

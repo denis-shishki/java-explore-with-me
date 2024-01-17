@@ -1,11 +1,19 @@
 package ru.practicum.service.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.client.Client;
+import ru.practicum.dto.RequestStatsDto;
+import ru.practicum.dto.ViewStats;
 import ru.practicum.service.exception.NotFoundException;
 import ru.practicum.service.exception.ValidationException;
 import ru.practicum.service.model.*;
@@ -25,11 +33,9 @@ import ru.practicum.service.service.CategoryService;
 import ru.practicum.service.service.EventsService;
 import ru.practicum.service.service.UserService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +46,13 @@ public class EventsServiceImpl implements EventsService {
     private final LocationRepository locationRepository;
     private final EventRepository eventRepository;
     private final RequestsRepository requestsRepository;
+    private final Client client;
+    private final ObjectMapper objectMapper;
+
+
+    @Value("${server.application.name:ewm-service}")
+    private String applicationName;
+
 
     @Override
     public EventFullDto postEvent(Long userId, NewEventDto newEventDto) {
@@ -325,7 +338,8 @@ public class EventsServiceImpl implements EventsService {
         return caseUpdatedStatus;
     }
 
-    private Event checkExistEvent(long eventId) {
+    @Override
+    public Event checkExistEvent(long eventId) {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if (event.isEmpty()) {
@@ -333,6 +347,110 @@ public class EventsServiceImpl implements EventsService {
         } else {
             return event.get();
         }
+    }
+
+    @Override
+    public List<EventShortDto> getAllEventFromPublic(SearchParamsForEvents searchParamsForEvents, HttpServletRequest request) {
+
+        if (searchParamsForEvents.getRangeEnd() != null && searchParamsForEvents.getRangeStart() != null) {
+            if (searchParamsForEvents.getRangeEnd().isBefore(searchParamsForEvents.getRangeStart())) {
+                throw new ValidationException("Дата окончания не может быть раньше даты начала");
+            }
+        }
+
+        addStatsClient(request);
+
+        Pageable pageable = PageRequest.of(searchParamsForEvents.getFrom() / searchParamsForEvents.getSize(), searchParamsForEvents.getSize());
+
+        Specification<Event> specification = Specification.where(null);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (searchParamsForEvents.getText() != null) {
+            String searchText = searchParamsForEvents.getText().toLowerCase();
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.or(
+                            criteriaBuilder.like(criteriaBuilder.lower(root.get("annotation")), "%" + searchText + "%"),
+                            criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), "%" + searchText + "%")
+                    ));
+        }
+
+        if (searchParamsForEvents.getCategories() != null && !searchParamsForEvents.getCategories().isEmpty()) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    root.get("category").get("id").in(searchParamsForEvents.getCategories()));
+        }
+
+        LocalDateTime startDateTime = Objects.requireNonNullElse(searchParamsForEvents.getRangeStart(), now);
+        specification = specification.and((root, query, criteriaBuilder) ->
+                criteriaBuilder.greaterThan(root.get("eventDate"), startDateTime));
+
+        if (searchParamsForEvents.getRangeEnd() != null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThan(root.get("eventDate"), searchParamsForEvents.getRangeEnd()));
+        }
+
+        if (searchParamsForEvents.getOnlyAvailable() != null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("participantLimit"), 0));
+        }
+
+        specification = specification.and((root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("eventStatus"), State.PUBLISHED));
+
+        List<Event> resultEvents = eventRepository.findAll(specification, pageable).getContent();
+        List<EventShortDto> result = resultEvents
+                .stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+        Map<Long, Long> viewStatsMap = getViewsAllEvents(resultEvents);
+
+        for (EventShortDto event : result) {
+            Long viewsFromMap = viewStatsMap.getOrDefault(event.getId(), 0L);
+            event.setViews(viewsFromMap);
+        }
+
+        return result;
+    }
+
+    private Map<Long, Long> getViewsAllEvents(List<Event> events) {
+        List<String> uris = events.stream()
+                .map(event -> String.format("/events/%s", event.getId()))
+                .collect(Collectors.toList());
+
+        List<LocalDateTime> startDates = events.stream()
+                .map(Event::getCreatedDate)
+                .collect(Collectors.toList());
+        LocalDateTime earliestDate = startDates.stream()
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+        Map<Long, Long> viewStatsMap = new HashMap<>();
+
+        if (earliestDate != null) {
+            ResponseEntity<Object> response = client.getStats(earliestDate, LocalDateTime.now(),
+                    uris, true);
+
+            List<ViewStats> viewStatsList = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
+            });
+
+            viewStatsMap = viewStatsList.stream()
+                    .filter(statsDto -> statsDto.getUri().startsWith("/events/"))
+                    .collect(Collectors.toMap(
+                            statsDto -> Long.parseLong(statsDto.getUri().substring("/events/".length())),
+                            ViewStats::getHits
+                    ));
+        }
+        return viewStatsMap;
+    }
+
+    @Override
+    public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
+        return null;
+    }
+
+    private void addStatsClient(HttpServletRequest request) {
+        client.postStat(RequestStatsDto.builder()
+                .app(applicationName)
+                .uri(request.getRequestURI())
+                .ip(request.getRemoteAddr())
+                .timestamp(LocalDateTime.now())
+                .build());
     }
 
     private Map<Long, List<Request>> getConfirmedRequestsCount(List<Event> events) {
