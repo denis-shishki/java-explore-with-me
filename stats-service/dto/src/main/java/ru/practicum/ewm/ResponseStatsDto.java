@@ -5,8 +5,7 @@ import lombok.*;
 @Builder
 @Getter
 @AllArgsConstructor
-@ToString
-//todo поменяй стринг на дата и попробуй
+@Data
 public class ResponseStatsDto {
     private String app;
     private String uri;

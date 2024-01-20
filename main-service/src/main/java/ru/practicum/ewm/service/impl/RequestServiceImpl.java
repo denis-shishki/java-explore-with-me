@@ -10,7 +10,7 @@ import ru.practicum.ewm.model.Request;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.dto.ParticipationRequestDto;
 import ru.practicum.ewm.model.enums.RequestStatus;
-import ru.practicum.ewm.model.enums.State;
+import ru.practicum.ewm.model.enums.EventStatus;
 import ru.practicum.ewm.model.mapper.RequestMapper;
 import ru.practicum.ewm.repository.RequestRepository;
 import ru.practicum.ewm.service.EventsService;
@@ -85,7 +85,7 @@ public class RequestServiceImpl implements RequestService {
         if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED)) {
             throw new DataIntegrityViolationException("Превышен лимит участников события");
         }
-        if (!event.getEventStatus().equals(State.PUBLISHED)) {
+        if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) {
             throw new DataIntegrityViolationException("Событие не опубликовано");
         }
         if (requestRepository.existsByEventIdAndRequesterId(eventId, userId)) {

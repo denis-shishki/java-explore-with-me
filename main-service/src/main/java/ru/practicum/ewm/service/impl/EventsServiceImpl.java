@@ -11,9 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.RequestStatsDto;
 import ru.practicum.ewm.ResponseStatsDto;
 import ru.practicum.ewm.StatsClient;
-import ru.practicum.ewm.RequestStatsDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.model.*;
@@ -21,7 +21,7 @@ import ru.practicum.ewm.model.dto.*;
 import ru.practicum.ewm.model.enums.EventAdminState;
 import ru.practicum.ewm.model.enums.EventUserState;
 import ru.practicum.ewm.model.enums.RequestStatus;
-import ru.practicum.ewm.model.enums.State;
+import ru.practicum.ewm.model.enums.EventStatus;
 import ru.practicum.ewm.model.mapper.EventMapper;
 import ru.practicum.ewm.model.mapper.LocationMapper;
 import ru.practicum.ewm.model.mapper.RequestMapper;
@@ -70,7 +70,7 @@ public class EventsServiceImpl implements EventsService {
         Event event = EventMapper.toEvent(newEventDto);
         event.setCategory(category);
         event.setInitiator(user);
-        event.setEventStatus(State.PENDING);
+        event.setEventStatus(EventStatus.PENDING);
         event.setCreatedDate(createOn);
 
         if (newEventDto.getLocation() != null) {
@@ -112,7 +112,7 @@ public class EventsServiceImpl implements EventsService {
         userService.checkExistUser(userId);
         Event oldEvent = checkEvenByInitiatorAndEventId(userId, eventId);
 
-        if (oldEvent.getEventStatus().equals(State.PUBLISHED)) {
+        if (oldEvent.getEventStatus().equals(EventStatus.PUBLISHED)) {
             throw new DataIntegrityViolationException("Нельзя изменить уже опубликованное событие");
         }
 
@@ -128,10 +128,10 @@ public class EventsServiceImpl implements EventsService {
         if (stateAction != null) {
             switch (stateAction) {
                 case SEND_TO_REVIEW:
-                    eventUpdate.setEventStatus(State.PENDING);
+                    eventUpdate.setEventStatus(EventStatus.PENDING);
                     break;
                 case CANCEL_REVIEW:
-                    eventUpdate.setEventStatus(State.CANCELED);
+                    eventUpdate.setEventStatus(EventStatus.CANCELED);
                     break;
             }
         }
@@ -186,7 +186,7 @@ public class EventsServiceImpl implements EventsService {
     public EventFullDto updateEventFromAdmin(long eventId, UpdateEventAdminRequest inputEvent) {
         Event eventOld = checkExistEvent(eventId);
 
-        if (eventOld.getEventStatus().equals(State.PUBLISHED) || eventOld.getEventStatus().equals(State.CANCELED)) { //точно ли?
+        if (eventOld.getEventStatus().equals(EventStatus.PUBLISHED) || eventOld.getEventStatus().equals(EventStatus.CANCELED)) { //точно ли?
             throw new DataIntegrityViolationException("Можно изменить только неподтвержденное событие");
         }
 
@@ -204,9 +204,9 @@ public class EventsServiceImpl implements EventsService {
         EventAdminState gotAction = inputEvent.getStateAction();
         if (gotAction != null) {
             if (EventAdminState.PUBLISH_EVENT.equals(gotAction)) {
-                eventUpdate.setEventStatus(State.PUBLISHED);
+                eventUpdate.setEventStatus(EventStatus.PUBLISHED);
             } else if (EventAdminState.REJECT_EVENT.equals(gotAction)) {
-                eventUpdate.setEventStatus(State.CANCELED);
+                eventUpdate.setEventStatus(EventStatus.CANCELED);
             }
         }
 
@@ -228,7 +228,7 @@ public class EventsServiceImpl implements EventsService {
         if (event.isEmpty()) {
             throw new NotFoundException("Event with id= " + eventId + " was not found");
         } else {
-           return event.get();
+            return event.get();
         }
     }
 
@@ -257,7 +257,7 @@ public class EventsServiceImpl implements EventsService {
 
                 List<Request> confirmedRequests = requestsRepository.findAllById(updatedStatusConfirmed.getProcessedIds());
                 List<Request> rejectedRequests = new ArrayList<>();
-                if (updatedStatusConfirmed.getIdsFromUpdateStatus().size() != 0) {
+                if (!updatedStatusConfirmed.getIdsFromUpdateStatus().isEmpty()) {
                     List<Long> ids = updatedStatusConfirmed.getIdsFromUpdateStatus();
                     rejectedRequests = rejectRequest(ids, eventId);
                 }
@@ -307,6 +307,7 @@ public class EventsServiceImpl implements EventsService {
         requestsRepository.saveAll(requestList);
         return rejectedRequests;
     }
+
     private List<Request> checkRequestOrEventList(Long eventId, List<Long> requestId) {
         return requestsRepository.findByEventIdAndIdIn(eventId, requestId).orElseThrow(
                 () -> new NotFoundException("Запроса с id = " + requestId + " или события с id = "
@@ -358,7 +359,7 @@ public class EventsServiceImpl implements EventsService {
             }
         }
 
-        addStatsClient(request);//todo переместить в контроллер?
+        addStatsClient(request);
 
         Pageable pageable = PageRequest.of(searchParamsForEvents.getFrom() / searchParamsForEvents.getSize(), searchParamsForEvents.getSize());
 
@@ -394,7 +395,7 @@ public class EventsServiceImpl implements EventsService {
         }
 
         specification = specification.and((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("eventStatus"), State.PUBLISHED));
+                criteriaBuilder.equal(root.get("eventStatus"), EventStatus.PUBLISHED));
 
         List<Event> resultEvents = eventRepository.findAll(specification, pageable).getContent();
         List<EventShortDto> result = resultEvents
@@ -423,11 +424,11 @@ public class EventsServiceImpl implements EventsService {
         Map<Long, Long> viewStatsMap = new HashMap<>();
 
         if (earliestDate != null) {
-            ResponseEntity<Object> response = statsClient.getStats(earliestDate, LocalDateTime.now(),
-                    uris, true);
-//todo можно поменять название переменной ниже
-            List<ResponseStatsDto> viewStatsList = objectMapper.convertValue(response.getBody(), new TypeReference<>() {});
-//todo ошибка тут (ошибка гулящая)
+            ResponseEntity<Object> response = statsClient.getStats(earliestDate, LocalDateTime.now(), uris, true);
+
+            List<ResponseStatsDto> viewStatsList = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
+            });
+
             viewStatsMap = viewStatsList.stream()
                     .filter(statsDto -> statsDto.getUri().startsWith("/events/"))
                     .collect(Collectors.toMap(
@@ -441,7 +442,7 @@ public class EventsServiceImpl implements EventsService {
     @Override
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
         Event event = checkEvent(eventId);
-        if (!event.getEventStatus().equals(State.PUBLISHED)) {
+        if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) {
             throw new NotFoundException("Событие с id = " + eventId + " не опубликовано");
         }
         addStatsClient(request);
@@ -456,6 +457,7 @@ public class EventsServiceImpl implements EventsService {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("События с id = " + eventId + " не существует"));
     }
+
     private void addStatsClient(HttpServletRequest request) {
         statsClient.postStat(RequestStatsDto.builder()
                 .app(applicationName)

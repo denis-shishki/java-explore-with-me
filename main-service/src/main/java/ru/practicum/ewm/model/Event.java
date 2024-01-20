@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.ewm.model.enums.State;
+import ru.practicum.ewm.model.enums.EventStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -45,7 +45,7 @@ public class Event {
     private boolean requestModeration;
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private State eventStatus;
+    private EventStatus eventStatus;
     @Column(name = "title", nullable = false, length = 120)
     private String title;
 }

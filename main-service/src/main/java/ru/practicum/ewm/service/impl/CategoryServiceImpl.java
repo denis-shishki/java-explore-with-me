@@ -33,15 +33,9 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(long id) {
         try {
             categoryRepository.deleteById(id);
-            //todo проверка на использование этой категории, добавить исключение "категория занята" 409
-//            if() {
-//                throw
-//            }
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Category with id=" + id + " was not found");
-        } /*catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException("The category is not empty");
-        }*/
+        }
     }
 
     @Override

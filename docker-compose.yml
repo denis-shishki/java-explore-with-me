@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   stats-server:
-    build: stat-service/server
+    build: stats-service/server
     image: java-explore-with-me-stats-server
     container_name: stats-server
     ports:
@@ -24,7 +24,7 @@ services:
       - POSTGRES_DB=statistics
 
   ewm-service:
-    build: service
+    build: main-service
     image: java-explore-with-me-service
     container_name: service
     ports:

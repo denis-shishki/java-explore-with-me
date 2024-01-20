@@ -6,8 +6,6 @@ DROP TABLE IF EXISTS compilations CASCADE;
 DROP TABLE IF EXISTS compilations_to_event CASCADE;
 DROP TABLE If EXISTS requests CASCADE;
 
--- todo расставить нормально ограничения по таблицам
-
 CREATE TABLE IF NOT EXISTS categories
 (
     id   BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -66,7 +64,7 @@ CREATE TABLE IF NOT EXISTS requests
 CREATE TABLE IF NOT EXISTS compilations
 (
     id     BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY UNIQUE,
-    pinned BOOLEAN      NOT NULL,
+    pinned BOOLEAN     NOT NULL,
     title  VARCHAR(50) NOT NULL
 );
 

@@ -13,10 +13,9 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-    //todo нормально назвать методы
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError validationException(final MethodArgumentNotValidException e) {
+    public ApiError methodArgumentNotException(final MethodArgumentNotValidException e) {
         log.warn("Validation exception: ", e);
         return new ApiError(HttpStatus.BAD_REQUEST.toString(),
                 "Incorrectly made request.",
@@ -26,7 +25,7 @@ public class ErrorHandler {
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError validationException(final DataIntegrityViolationException e) {
+    public ApiError dataValidationException(final DataIntegrityViolationException e) {
         log.warn("Validation exception: ", e);
         return new ApiError(HttpStatus.CONFLICT.toString(),
                 "Integrity constraint has been violated.",
@@ -36,7 +35,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError throwableException(final NotFoundException e) {
+    public ApiError notFoundException(final NotFoundException e) {
         return new ApiError(HttpStatus.NOT_FOUND.toString(),
                 "The required object was not found.",
                 e.getMessage(),
@@ -45,7 +44,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError validationPaginatorException(final ValidationException e) {
+    public ApiError validationException(final ValidationException e) {
         return new ApiError(HttpStatus.NOT_FOUND.toString(),
                 "Incorrectly made request.",
                 e.getMessage(),
