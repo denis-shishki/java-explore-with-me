@@ -35,15 +35,15 @@ public class EventsController {
 
     @GetMapping("users/{userId}/events/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto getFullEventForOwner( @PathVariable Long userId, @PathVariable Long eventId) {
+    public EventFullDto getFullEventForOwner(@PathVariable Long userId, @PathVariable Long eventId) {
         return eventsService.getFullEventForOwner(userId, eventId);
     }
 
     @PatchMapping("users/{userId}/events/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto updateEventOwner(@PathVariable Long userId,
-                                                   @PathVariable Long eventId,
-                                                   @RequestBody @Valid UpdateEventUserRequest eventUserRequest) {
+                                         @PathVariable Long eventId,
+                                         @RequestBody @Valid UpdateEventUserRequest eventUserRequest) {
         return eventsService.updateEventOwner(userId, eventId, eventUserRequest);
     }
 
@@ -52,13 +52,14 @@ public class EventsController {
     public List<EventFullDto> searchEventsFromAdmin(@Valid ParamsSearchForAdmin paramsSearch) {
         return eventsService.getAllEventFromAdmin(paramsSearch);
     }
+
     @PatchMapping("/admin/events/{eventId}")
     public EventFullDto updateEventByAdmin(@PathVariable(value = "eventId") Long eventId,
                                            @RequestBody @Valid UpdateEventAdminRequest inputUpdate) {
         return eventsService.updateEventFromAdmin(eventId, inputUpdate);
     }
 
-    @GetMapping("/users/{userId}/events/{eventId}/requests") //может его переместить в отдельный контроллер для запросов?
+    @GetMapping("/users/{userId}/events/{eventId}/requests")
     public List<ParticipationRequestDto> getAllRequestByEventFromOwner(@PathVariable(value = "userId") Long userId,
                                                                        @PathVariable(value = "eventId") Long eventId) {
         return eventsService.getAllParticipationRequestsFromEventByOwner(userId, eventId);

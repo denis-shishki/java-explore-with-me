@@ -19,9 +19,9 @@ import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.model.*;
 import ru.practicum.ewm.model.dto.*;
 import ru.practicum.ewm.model.enums.EventAdminState;
+import ru.practicum.ewm.model.enums.EventStatus;
 import ru.practicum.ewm.model.enums.EventUserState;
 import ru.practicum.ewm.model.enums.RequestStatus;
-import ru.practicum.ewm.model.enums.EventStatus;
 import ru.practicum.ewm.model.mapper.EventMapper;
 import ru.practicum.ewm.model.mapper.LocationMapper;
 import ru.practicum.ewm.model.mapper.RequestMapper;
@@ -119,7 +119,7 @@ public class EventsServiceImpl implements EventsService {
         Event eventUpdate = updateEventFields(oldEvent, updateEventRequest);
 
         LocalDateTime newDate = updateEventRequest.getEventDate();
-        if (newDate != null) { //может этот блок поместить в мердж
+        if (newDate != null) {
             checkValidDataTimeForUser(newDate);
             eventUpdate.setEventDate(newDate);
         }
@@ -186,7 +186,7 @@ public class EventsServiceImpl implements EventsService {
     public EventFullDto updateEventFromAdmin(long eventId, UpdateEventAdminRequest inputEvent) {
         Event eventOld = checkExistEvent(eventId);
 
-        if (eventOld.getEventStatus().equals(EventStatus.PUBLISHED) || eventOld.getEventStatus().equals(EventStatus.CANCELED)) { //точно ли?
+        if (eventOld.getEventStatus().equals(EventStatus.PUBLISHED) || eventOld.getEventStatus().equals(EventStatus.CANCELED)) {
             throw new DataIntegrityViolationException("Можно изменить только неподтвержденное событие");
         }
 

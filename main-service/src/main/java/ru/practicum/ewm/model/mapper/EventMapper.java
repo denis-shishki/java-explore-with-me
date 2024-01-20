@@ -7,7 +7,7 @@ import ru.practicum.ewm.model.dto.NewEventDto;
 
 public class EventMapper {
     public static Event toEvent(NewEventDto newEventDto) {
-        return  Event.builder()
+        return Event.builder()
                 .id(null)
                 .annotation(newEventDto.getAnnotation())
                 .description(newEventDto.getDescription())

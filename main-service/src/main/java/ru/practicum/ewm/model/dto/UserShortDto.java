@@ -13,5 +13,5 @@ public class UserShortDto {
     @NotNull
     private Long id;
     @NotNull
-    public  String name;
+    public String name;
 }

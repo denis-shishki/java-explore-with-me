@@ -7,7 +7,10 @@ import java.util.List;
 
 public interface UserService {
     UserDto postUser(UserDto userDto);
+
     void deleteUser(long userId);
+
     List<UserDto> getUsers(List<Long> ids, int from, int size);
+
     User checkExistUser(long userId);
 }
