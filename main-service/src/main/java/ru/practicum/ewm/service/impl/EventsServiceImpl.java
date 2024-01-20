@@ -11,9 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.ResponseStatsDto;
 import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.RequestStatsDto;
-import ru.practicum.ewm.ViewStats;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.model.*;
@@ -358,7 +358,7 @@ public class EventsServiceImpl implements EventsService {
             }
         }
 
-        addStatsClient(request);
+        addStatsClient(request);//todo переместить в контроллер?
 
         Pageable pageable = PageRequest.of(searchParamsForEvents.getFrom() / searchParamsForEvents.getSize(), searchParamsForEvents.getSize());
 
@@ -425,15 +425,14 @@ public class EventsServiceImpl implements EventsService {
         if (earliestDate != null) {
             ResponseEntity<Object> response = statsClient.getStats(earliestDate, LocalDateTime.now(),
                     uris, true);
-
-            List<ViewStats> viewStatsList = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
-            });
-
+//todo можно поменять название переменной ниже
+            List<ResponseStatsDto> viewStatsList = objectMapper.convertValue(response.getBody(), new TypeReference<>() {});
+//todo ошибка тут (ошибка гулящая)
             viewStatsMap = viewStatsList.stream()
                     .filter(statsDto -> statsDto.getUri().startsWith("/events/"))
                     .collect(Collectors.toMap(
                             statsDto -> Long.parseLong(statsDto.getUri().substring("/events/".length())),
-                            ViewStats::getHits
+                            ResponseStatsDto::getHits
                     ));
         }
         return viewStatsMap;
@@ -441,9 +440,22 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
-        return null;
+        Event event = checkEvent(eventId);
+        if (!event.getEventStatus().equals(State.PUBLISHED)) {
+            throw new NotFoundException("Событие с id = " + eventId + " не опубликовано");
+        }
+        addStatsClient(request);
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
+        Map<Long, Long> viewStatsMap = getViewsAllEvents(List.of(event));
+        Long views = viewStatsMap.getOrDefault(event.getId(), 0L);
+        eventFullDto.setViews(views);
+        return eventFullDto;
     }
 
+    private Event checkEvent(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("События с id = " + eventId + " не существует"));
+    }
     private void addStatsClient(HttpServletRequest request) {
         statsClient.postStat(RequestStatsDto.builder()
                 .app(applicationName)

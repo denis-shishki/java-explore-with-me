@@ -22,9 +22,7 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public RequestStatsDto postStat(RequestStatsDto requestStatsDto) {
         Stat stat = Mapper.toStatRequest(requestStatsDto);
-        Stat stat1 = statsRepository.save(stat);
-
-        return Mapper.toRequestStatDto(stat1);
+        return Mapper.toRequestStatDto(statsRepository.save(stat));
     }
 
     @Override
@@ -43,8 +41,8 @@ public class StatsServiceImpl implements StatsService {
     }
 
     private void checkValidTime(LocalDateTime start, LocalDateTime end) {
-        if (end.isBefore(start) || end.equals(start)) {
-            throw new ValidTimeException("Время начала не может быть позже или равно времени окончания мероприятия");
+        if (end.isBefore(start)) {
+            throw new ValidTimeException("Время начала не может быть позже окончания мероприятия");
         }
     }
 }

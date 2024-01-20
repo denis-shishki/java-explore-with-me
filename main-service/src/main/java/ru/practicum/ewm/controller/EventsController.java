@@ -2,6 +2,7 @@ package ru.practicum.ewm.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.model.ParamsSearchForAdmin;
 import ru.practicum.ewm.model.SearchParamsForEvents;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
+@Validated
 public class EventsController {
     private final EventsService eventsService;
 
@@ -41,7 +43,7 @@ public class EventsController {
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto updateEventOwner(@PathVariable Long userId,
                                                    @PathVariable Long eventId,
-                                                   @RequestBody UpdateEventUserRequest eventUserRequest) {
+                                                   @RequestBody @Valid UpdateEventUserRequest eventUserRequest) {
         return eventsService.updateEventOwner(userId, eventId, eventUserRequest);
     }
 
@@ -65,7 +67,7 @@ public class EventsController {
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
     public EventRequestStatusUpdateResult updateStatusRequestFromOwner(@PathVariable(value = "userId") Long userId,
                                                                        @PathVariable(value = "eventId") Long eventId,
-                                                                       @RequestBody EventRequestStatusUpdateRequest inputUpdate) {
+                                                                       @RequestBody @Valid EventRequestStatusUpdateRequest inputUpdate) {
         return eventsService.updateStatusRequest(userId, eventId, inputUpdate);
     }
 

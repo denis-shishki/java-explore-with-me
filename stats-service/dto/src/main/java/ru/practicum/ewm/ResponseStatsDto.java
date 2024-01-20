@@ -1,12 +1,14 @@
 package ru.practicum.ewm;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Builder
+@Getter
 @AllArgsConstructor
+@ToString
+//todo поменяй стринг на дата и попробуй
 public class ResponseStatsDto {
     private String app;
     private String uri;
-    private long hits;
+    private Long hits;
 }
