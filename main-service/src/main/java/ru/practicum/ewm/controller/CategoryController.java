@@ -8,6 +8,8 @@ import ru.practicum.ewm.service.CategoryService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -35,8 +37,8 @@ public class CategoryController {
 
     @GetMapping("/categories")
     @ResponseStatus(HttpStatus.OK)
-    public List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") Integer from,
-                                           @RequestParam(defaultValue = "10") Integer size) {
+    public List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                           @RequestParam(defaultValue = "10") @Positive Integer size) {
         return categoryService.getCategories(from, size);
     }
 

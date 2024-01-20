@@ -28,8 +28,8 @@ public class EventsController {
     @GetMapping("/users/{userId}/events")
     @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getEventForOwner(@PathVariable Long userId,
-                                                @RequestParam(defaultValue = "0") Integer from,
-                                                @RequestParam(defaultValue = "10") Integer size) {
+                                                @RequestParam(defaultValue = "0") /*@PositiveOrZero*/ Integer from,
+                                                @RequestParam(defaultValue = "10") /*@Positive*/ Integer size) {
         return eventsService.getEventForOwner(userId, from, size);
     }
 

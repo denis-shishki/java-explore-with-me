@@ -1,15 +1,13 @@
 package ru.practicum.ewm.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.ewm.model.enums.RequestStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -19,7 +17,7 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "create_date", nullable = false)
+    @Column(name = "create_date")
     private LocalDateTime created;
 
     @ManyToOne
@@ -31,6 +29,6 @@ public class Request {
     private User requester;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     private RequestStatus status;
 }

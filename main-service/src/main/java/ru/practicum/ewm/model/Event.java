@@ -1,18 +1,17 @@
 package ru.practicum.ewm.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.ewm.model.enums.EventStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 @Entity(name = "events")
 public class Event {
     @Id
@@ -46,6 +45,6 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private EventStatus eventStatus;
-    @Column(name = "title", nullable = false, length = 120)
+    @Column(name = "title", length = 120)
     private String title;
 }

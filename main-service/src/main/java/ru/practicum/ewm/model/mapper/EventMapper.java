@@ -50,9 +50,4 @@ public class EventMapper {
                 .title(event.getTitle())
                 .build();
     }
-//
-//    public List<EventShortDto> eventToEventShortDtoList(List<Event> events) {
-//        return events == null ? new ArrayList<>() :
-//                events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
-//    }
 }
