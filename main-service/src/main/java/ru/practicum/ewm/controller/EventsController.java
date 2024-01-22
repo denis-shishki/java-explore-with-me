@@ -11,6 +11,8 @@ import ru.practicum.ewm.service.EventsService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -28,8 +30,8 @@ public class EventsController {
     @GetMapping("/users/{userId}/events")
     @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getEventForOwner(@PathVariable Long userId,
-                                                @RequestParam(defaultValue = "0") /*@PositiveOrZero*/ Integer from,
-                                                @RequestParam(defaultValue = "10") /*@Positive*/ Integer size) {
+                                                @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                @RequestParam(defaultValue = "10") @Positive Integer size) {
         return eventsService.getEventForOwner(userId, from, size);
     }
 
