@@ -12,9 +12,9 @@ public interface CommentService {
 
     CommentDto patchByUser(Long userId, Long commentId, UpdateCommentDto updateCommentDto);
 
-    List<CommentDto> getCommentUser(Long userId);
+    List<CommentDto> getUserComments(Long userId);
 
-    List<CommentDto> getCommentsEvent(Long eventId, Integer from, Integer size);
+    List<CommentDto> getEventComments(Long eventId, Integer from, Integer size);
 
     void deleteComment(Long userId, Long commentId);
 

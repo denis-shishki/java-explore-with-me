@@ -35,8 +35,8 @@ public class CommentsController {
     }
 
     @GetMapping("/comments/users/{userId}")
-    public List<CommentDto> getCommentsUser(@PathVariable Long userId) {
-        return commentService.getCommentUser(userId);
+    public List<CommentDto> getUserComments(@PathVariable Long userId) {
+        return commentService.getUserComments(userId);
     }
 
     @DeleteMapping("/comments/{commentId}/users/{userId}")
@@ -53,10 +53,10 @@ public class CommentsController {
     }
 
     @GetMapping("/comments/{eventId}")
-    public List<CommentDto> getCommentsAllCommentsEvent(@PathVariable Long eventId,
+    public List<CommentDto> getCommentsAllCommentsByEvent(@PathVariable Long eventId,
                                                         @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                                         @RequestParam(defaultValue = "10") @Positive Integer size) {
-        return commentService.getCommentsEvent(eventId, from, size);
+        return commentService.getEventComments(eventId, from, size);
     }
 
     @DeleteMapping("/admin/comments/{commentId}")

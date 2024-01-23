@@ -53,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentDto> getCommentUser(Long userId) {
+    public List<CommentDto> getUserComments(Long userId) {
         userService.checkExistUser(userId);
         List<Comment> commentList = commentRepository.findByAuthor_Id(userId);
         return commentList.stream()
@@ -64,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentDto> getCommentsEvent(Long eventId, Integer from, Integer size) {
+    public List<CommentDto> getEventComments(Long eventId, Integer from, Integer size) {
         eventsService.checkExistEvent(eventId);
         Pageable pageable = Paginator.getPageable(from, size);
         List<Comment> comments = commentRepository.findAllByEvent_Id(eventId, pageable);
@@ -93,7 +93,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public List<CommentDto> search(String text, Integer from, Integer size) {
         Pageable pageable = Paginator.getPageable(from, size);
-        if (text.isBlank()) {
+        if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
         List<Comment> comments = commentRepository.search(text, pageable);
